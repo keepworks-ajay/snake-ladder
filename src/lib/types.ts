@@ -27,3 +27,5 @@ export interface Ladder {
   startFrom: number
   endAt: number
 }
+
+export type Difficulty = 'EASY' | 'MEDIUM' | 'HARD'

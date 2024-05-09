@@ -7,7 +7,7 @@ import { usePlayerStore } from '@/stores/player'
 import { useSnakeStore } from '@/stores/snake'
 import { useLadderStore } from '@/stores/ladder'
 
-import type { Player } from '@/lib/types'
+import type { Difficulty, Player } from '@/lib/types'
 import { generateUniqueRanges, getDiceNumber } from '@/lib/helpers'
 
 export const useGameStore = defineStore('game', () => {
@@ -18,9 +18,18 @@ export const useGameStore = defineStore('game', () => {
   const winnerPlayerIndex: Ref<number> = computed(() =>
     players.value.findIndex((player) => player.position === 100)
   )
-  const snakesCount = 7
-  const laddersCount = 7
+  const snakesCount = {
+    EASY: 4,
+    MEDIUM: 7,
+    HARD: 9
+  }
+  const laddersCount = {
+    EASY: 9,
+    MEDIUM: 7,
+    HARD: 4
+  }
   const isCrookedDice: Ref<boolean> = ref(false)
+  const difficulty: Ref<Difficulty> = ref('EASY')
 
   const { players } = storeToRefs(usePlayerStore())
   const { addPlayer, updatePlayer } = usePlayerStore()
@@ -85,7 +94,7 @@ export const useGameStore = defineStore('game', () => {
   }
 
   function generateSnakes(excepts: number[][] = []) {
-    const ranges = generateUniqueRanges(snakesCount, 15, excepts)
+    const ranges = generateUniqueRanges(snakesCount[difficulty.value], 15, excepts)
     ranges.forEach((range) =>
       addSnake({
         tailAt: range[0],
@@ -97,7 +106,7 @@ export const useGameStore = defineStore('game', () => {
   }
 
   function generateLadders(excepts: number[][] = []) {
-    const ranges = generateUniqueRanges(laddersCount, 10, excepts)
+    const ranges = generateUniqueRanges(laddersCount[difficulty.value], 10, excepts)
     ranges.forEach((range) =>
       addLadder({
         startFrom: range[0],
@@ -106,7 +115,14 @@ export const useGameStore = defineStore('game', () => {
     )
   }
 
-  function initialize(players: Player[], crookedDice: boolean = false) {
+  function setDifficulty(level: Difficulty) {
+    difficulty.value = level
+  }
+
+  function initialize(players: Player[], crookedDice: boolean = false, level: Difficulty = 'EASY') {
+    // set difficulty
+    setDifficulty(level)
+
     // add players
     players.forEach((player) => addPlayer(player))
 
@@ -167,6 +183,7 @@ export const useGameStore = defineStore('game', () => {
     maxPlayersAllowed,
     dice,
     winnerPlayerIndex,
+    snakesCount,
 
     initialize,
     rollDice

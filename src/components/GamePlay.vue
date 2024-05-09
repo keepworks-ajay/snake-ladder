@@ -64,7 +64,7 @@ function resetGame() {
         <!-- Reset button on game end -->
         <PrimaryButton v-else @click="resetGame" class="mt-10"> Reload Game </PrimaryButton>
       </div>
-      <div class="col-span-6 bg-gray-200 p-4">
+      <div class="col-span-6 p-4">
         <!-- Game board -->
         <div class="relative max-w-[80%] mx-auto">
           <div v-for="(row, rowIndex) in rows" :key="rowIndex" class="flex">
