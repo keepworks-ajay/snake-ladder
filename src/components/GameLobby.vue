@@ -7,7 +7,7 @@ import { ref, type Ref } from 'vue'
 
 const players: Ref<Player[]> = ref([])
 
-const { max_players_allowed, initialize } = useGameStore()
+const { maxPlayersAllowed, initialize } = useGameStore()
 
 function addPlayer() {
   const player: Player = {
@@ -41,7 +41,7 @@ function play(event: any) {
           <!-- Add players to game -->
           <div>
             <label for="players" class="block text-gray-700 font-bold mb-2"
-              >Players (Upto {{ max_players_allowed }})</label
+              >Players (Upto {{ maxPlayersAllowed }})</label
             >
             <div class="inline-block relative w-full space-y-2">
               <div v-for="(player, index) in players" :key="index" class="flex items-center">
@@ -60,7 +60,7 @@ function play(event: any) {
                 </button>
               </div>
 
-              <div v-if="max_players_allowed > players.length" class="flex justify-center">
+              <div v-if="maxPlayersAllowed > players.length" class="flex justify-center">
                 <PrimaryButton @click="addPlayer" class="mx-auto">Add Player</PrimaryButton>
               </div>
             </div>
