@@ -6,6 +6,7 @@ import type { Player } from '@/lib/types'
 import { ref, type Ref } from 'vue'
 
 const players: Ref<Player[]> = ref([])
+const crookedDice: Ref<boolean> = ref(false)
 
 const { maxPlayersAllowed, initialize } = useGameStore()
 
@@ -26,7 +27,7 @@ function removePlayer(index: number) {
 function play(event: any) {
   event.preventDefault()
 
-  initialize(players.value)
+  initialize(players.value, crookedDice.value)
 }
 </script>
 
@@ -63,6 +64,18 @@ function play(event: any) {
               <div v-if="maxPlayersAllowed > players.length" class="flex justify-center">
                 <PrimaryButton @click="addPlayer" class="mx-auto">Add Player</PrimaryButton>
               </div>
+            </div>
+          </div>
+
+          <!-- Add crooked dice checkbox  -->
+          <div>
+            <div class="flex items-center">
+              <input
+                v-model="crookedDice"
+                type="checkbox"
+                class="w-5 h- rounded-sm text-blue-500 focus:ring-blue-400 border-gray-300 shadow-sm focus:border-blue-300"
+              />
+              <label class="ml-2 text-gray-700 font-bold mb-2">Play with crooked dice?</label>
             </div>
           </div>
 

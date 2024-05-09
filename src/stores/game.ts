@@ -18,6 +18,7 @@ export const useGameStore = defineStore('game', () => {
     players.value.findIndex((player) => player.position === 100)
   )
   const snakeCount = 7
+  const isCrookedDice: Ref<boolean> = ref(false)
 
   const { players } = storeToRefs(usePlayerStore())
   const { addPlayer, updatePlayer } = usePlayerStore()
@@ -82,12 +83,15 @@ export const useGameStore = defineStore('game', () => {
     return ranges
   }
 
-  function initialize(players: Player[]) {
+  function initialize(players: Player[], crookedDice: boolean = false) {
     // add players
     players.forEach((player) => addPlayer(player))
 
     // generate snakes
     generateSnakes()
+
+    // set crooked dice
+    isCrookedDice.value = crookedDice
 
     // change game status
     changeGameStatus('STARTED')
@@ -120,7 +124,7 @@ export const useGameStore = defineStore('game', () => {
       })
     }
 
-    dice.value = getDiceNumber()
+    dice.value = getDiceNumber(isCrookedDice.value)
 
     if (player.position === 0 && dice.value !== 6) {
       return
