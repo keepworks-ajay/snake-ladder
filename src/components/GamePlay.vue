@@ -51,7 +51,19 @@ function resetGame() {
 <template>
   <div>
     <div class="flex justify-center">
-      <p class="text-6xl">Snakes &amp; Ladders</p>
+      <div class="flex flex-col">
+        <!-- Snake -->
+        <div class="flex items-center">
+          <div class="mr-2">Snakes</div>
+          <div class="border-b-2 border-solid border-black flex-grow w-10"></div>
+        </div>
+
+        <!-- Ladder -->
+        <div class="flex items-center mt-4">
+          <div class="mr-2">Ladders</div>
+          <div class="border-b-2 border-dashed border-black flex-grow w-10"></div>
+        </div>
+      </div>
     </div>
     <div class="grid grid-cols-12 gap-4">
       <div class="col-span-3 bg-gray-200 p-4">
@@ -112,7 +124,7 @@ function resetGame() {
           </div>
         </div>
       </div>
-      <div class="col-span-3 bg-gray-300 p-4">
+      <div class="col-span-3 bg-gray-200 p-4">
         <!-- Event logs -->
         <p class="text-2xl">Event logs</p>
         <ol class="list-inside">
