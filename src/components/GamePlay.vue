@@ -2,17 +2,20 @@
 import { type Ref, ref } from 'vue'
 import { storeToRefs } from 'pinia'
 
+import { useGameStore } from '@/stores/game'
+import { useSnakeStore } from '@/stores/snake'
+
 import { generateCells } from '@/lib/helpers'
 import type { CellPoint } from '@/lib/types.ts'
 
 import Cell from '@/components/BoardCell.vue'
 import PlayerList from '@/components/PlayerList.vue'
 import Dice from '@/components/DiceBox.vue'
-import { useGameStore } from '@/stores/game'
 import PrimaryButton from '@/components/PrimaryButton.vue'
 
 const rows = generateCells()
 const { winnerPlayerIndex, logs } = storeToRefs(useGameStore())
+const { snakes } = storeToRefs(useSnakeStore())
 
 const cellDivPoints: Ref<CellPoint[]> = ref([])
 
@@ -69,6 +72,23 @@ function resetGame() {
               :cell="cell"
               @ready="() => setDivPoint(cell, rowIndex, colIndex)"
             />
+          </div>
+          <div v-if="cellDivPoints.length">
+            <svg
+              v-for="(snake, index) in snakes"
+              :key="index"
+              class="absolute top-0 left-0 w-[100%] h-[100%]"
+              :id="`mouthAt - ${snake.mouthAt} tailAt - ${snake.tailAt}`"
+            >
+              <line
+                :x1="cellDivPoints.find((div) => div.cell === snake.tailAt)?.point.x"
+                :y1="cellDivPoints.find((div) => div.cell === snake.tailAt)?.point.y"
+                :x2="cellDivPoints.find((div) => div.cell === snake.mouthAt)?.point.x"
+                :y2="cellDivPoints.find((div) => div.cell === snake.mouthAt)?.point.y"
+                stroke="black"
+                stroke-width="2"
+              />
+            </svg>
           </div>
         </div>
       </div>

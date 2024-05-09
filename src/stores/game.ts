@@ -3,9 +3,11 @@ import { defineStore, storeToRefs } from 'pinia'
 
 import type { GameStatus } from '@/lib/types'
 
-import { usePlayerStore } from './player'
+import { usePlayerStore } from '@/stores/player'
+import { useSnakeStore } from '@/stores/snake'
+
 import type { Player } from '@/lib/types'
-import { getDiceNumber } from '@/lib/helpers'
+import { generateUniqueRanges, getDiceNumber } from '@/lib/helpers'
 
 export const useGameStore = defineStore('game', () => {
   const status: Ref<GameStatus> = ref('LOBBY')
@@ -15,9 +17,12 @@ export const useGameStore = defineStore('game', () => {
   const winnerPlayerIndex: Ref<number> = computed(() =>
     players.value.findIndex((player) => player.position === 100)
   )
+  const snakeCount = 7
 
   const { players } = storeToRefs(usePlayerStore())
   const { addPlayer, updatePlayer } = usePlayerStore()
+  const { snakes } = storeToRefs(useSnakeStore())
+  const { addSnake } = useSnakeStore()
 
   function changeGameStatus(gameStatus: GameStatus) {
     // update the game status
@@ -38,6 +43,17 @@ export const useGameStore = defineStore('game', () => {
   function move(playerIndex: number, position: number) {
     const player = players.value[playerIndex]
 
+    // check for snake bites
+    const existingSnakes = snakes.value.filter((snake) => snake.mouthAt === position)
+    if (existingSnakes.length) {
+      const movingTo = existingSnakes.sort((snake) => snake.tailAt - snake.tailAt)[0].tailAt
+      logs.value.push(
+        `Player ${playerIndex + 1} gets a snake bite. Taking back to position ${movingTo}`
+      )
+      move(playerIndex, movingTo)
+      return
+    }
+
     if (position > 100) {
       return
     }
@@ -54,12 +70,27 @@ export const useGameStore = defineStore('game', () => {
     }
   }
 
-  function initialize(players: Player[]) {
-    // change game status
-    changeGameStatus('STARTED')
+  function generateSnakes(excepts: number[][] = []) {
+    const ranges = generateUniqueRanges(snakeCount, 15, excepts)
+    ranges.forEach((range) =>
+      addSnake({
+        tailAt: range[0],
+        mouthAt: range[1]
+      })
+    )
 
+    return ranges
+  }
+
+  function initialize(players: Player[]) {
     // add players
     players.forEach((player) => addPlayer(player))
+
+    // generate snakes
+    generateSnakes()
+
+    // change game status
+    changeGameStatus('STARTED')
   }
 
   function rollDice() {
