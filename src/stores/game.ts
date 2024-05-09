@@ -5,6 +5,7 @@ import type { GameStatus } from '@/lib/types'
 
 import { usePlayerStore } from '@/stores/player'
 import { useSnakeStore } from '@/stores/snake'
+import { useLadderStore } from '@/stores/ladder'
 
 import type { Player } from '@/lib/types'
 import { generateUniqueRanges, getDiceNumber } from '@/lib/helpers'
@@ -17,13 +18,16 @@ export const useGameStore = defineStore('game', () => {
   const winnerPlayerIndex: Ref<number> = computed(() =>
     players.value.findIndex((player) => player.position === 100)
   )
-  const snakeCount = 7
+  const snakesCount = 7
+  const laddersCount = 7
   const isCrookedDice: Ref<boolean> = ref(false)
 
   const { players } = storeToRefs(usePlayerStore())
   const { addPlayer, updatePlayer } = usePlayerStore()
   const { snakes } = storeToRefs(useSnakeStore())
   const { addSnake } = useSnakeStore()
+  const { ladders } = storeToRefs(useLadderStore())
+  const { addLadder } = useLadderStore()
 
   function changeGameStatus(gameStatus: GameStatus) {
     // update the game status
@@ -55,6 +59,15 @@ export const useGameStore = defineStore('game', () => {
       return
     }
 
+    // check of the ladders
+    const existingLadders = ladders.value.filter((ladder) => ladder.startFrom === position)
+    if (existingLadders.length) {
+      const movingTo = existingLadders.sort((ladder) => ladder.endAt - ladder.endAt)[0].endAt
+      logs.value.push(`Player ${playerIndex + 1} takes a ladder and reaches position ${movingTo}`)
+      move(playerIndex, movingTo)
+      return
+    }
+
     if (position > 100) {
       return
     }
@@ -72,7 +85,7 @@ export const useGameStore = defineStore('game', () => {
   }
 
   function generateSnakes(excepts: number[][] = []) {
-    const ranges = generateUniqueRanges(snakeCount, 15, excepts)
+    const ranges = generateUniqueRanges(snakesCount, 15, excepts)
     ranges.forEach((range) =>
       addSnake({
         tailAt: range[0],
@@ -83,12 +96,25 @@ export const useGameStore = defineStore('game', () => {
     return ranges
   }
 
+  function generateLadders(excepts: number[][] = []) {
+    const ranges = generateUniqueRanges(laddersCount, 10, excepts)
+    ranges.forEach((range) =>
+      addLadder({
+        startFrom: range[0],
+        endAt: range[1]
+      })
+    )
+  }
+
   function initialize(players: Player[], crookedDice: boolean = false) {
     // add players
     players.forEach((player) => addPlayer(player))
 
     // generate snakes
-    generateSnakes()
+    const snakeRanges = generateSnakes()
+
+    // generate ladders
+    generateLadders(snakeRanges)
 
     // set crooked dice
     isCrookedDice.value = crookedDice

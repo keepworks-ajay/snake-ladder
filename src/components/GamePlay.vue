@@ -4,6 +4,7 @@ import { storeToRefs } from 'pinia'
 
 import { useGameStore } from '@/stores/game'
 import { useSnakeStore } from '@/stores/snake'
+import { useLadderStore } from '@/stores/ladder'
 
 import { generateCells } from '@/lib/helpers'
 import type { CellPoint } from '@/lib/types.ts'
@@ -16,6 +17,7 @@ import PrimaryButton from '@/components/PrimaryButton.vue'
 const rows = generateCells()
 const { winnerPlayerIndex, logs } = storeToRefs(useGameStore())
 const { snakes } = storeToRefs(useSnakeStore())
+const { ladders } = storeToRefs(useLadderStore())
 
 const cellDivPoints: Ref<CellPoint[]> = ref([])
 
@@ -74,6 +76,7 @@ function resetGame() {
             />
           </div>
           <div v-if="cellDivPoints.length">
+            <!-- Snake lines -->
             <svg
               v-for="(snake, index) in snakes"
               :key="index"
@@ -87,6 +90,23 @@ function resetGame() {
                 :y2="cellDivPoints.find((div) => div.cell === snake.mouthAt)?.point.y"
                 stroke="black"
                 stroke-width="2"
+              />
+            </svg>
+            <!-- Ladder lines -->
+            <svg
+              v-for="(ladder, index) in ladders"
+              :key="index"
+              class="absolute top-0 left-0 w-[100%] h-[100%]"
+              :id="`startFrom - ${ladder.startFrom} endAt - ${ladder.endAt}`"
+            >
+              <line
+                :x1="cellDivPoints.find((div) => div.cell === ladder.startFrom)?.point.x"
+                :y1="cellDivPoints.find((div) => div.cell === ladder.startFrom)?.point.y"
+                :x2="cellDivPoints.find((div) => div.cell === ladder.endAt)?.point.x"
+                :y2="cellDivPoints.find((div) => div.cell === ladder.endAt)?.point.y"
+                stroke="black"
+                stroke-width="2"
+                stroke-dasharray="5,5"
               />
             </svg>
           </div>

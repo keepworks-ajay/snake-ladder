@@ -22,3 +22,8 @@ export interface Snake {
   tailAt: number
   mouthAt: number
 }
+
+export interface Ladder {
+  startFrom: number
+  endAt: number
+}
